@@ -1,4 +1,4 @@
-<script>
+document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
   const nav = document.getElementById('main-nav');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 40);
@@ -83,4 +83,4 @@
     }
     alert('Thank you, ' + name + '! Your message has been received. Rachel will be in touch within two business days.');
   }
-</script>
+
