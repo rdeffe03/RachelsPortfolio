@@ -17,34 +17,63 @@
   document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
 
   const gallery = document.querySelector('[data-gallery]');
-  if (gallery) {
-    const track = gallery.querySelector('.gallery-track');
-    const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
-    const prevBtn = gallery.querySelector('[data-gallery-prev]');
-    const nextBtn = gallery.querySelector('[data-gallery-next]');
-    const dotsWrap = gallery.querySelector('[data-gallery-dots]');
-    let index = 0;
-    let perView = window.innerWidth <= 900 ? 1 : 3;
-    let maxIndex = Math.max(0, slides.length - perView);
 
-    console.log("Slides found:", slides.length);
-console.log("Per view calculated:", perView);
-console.log("Max index:", maxIndex);
+if (gallery) {
+  const track = gallery.querySelector('.gallery-track');
+  const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
+  const prevBtn = gallery.querySelector('[data-gallery-prev]');
+  const nextBtn = gallery.querySelector('[data-gallery-next]');
+  const dotsWrap = gallery.querySelector('[data-gallery-dots]');
+  
+  let index = 0;
+  let perView = window.innerWidth <= 900 ? 1 : 3;
+  let maxIndex = Math.max(0, slides.length - perView);
+  nextBtn.addEventListener('click', () => {
+    index = index >= maxIndex ? 0 : index + 1;
+    updateGallery();
+  });
 
-    function buildDots() {
-      dotsWrap.innerHTML = '';
-      for (let i = 0; i <= maxIndex; i += 1) {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'gallery-dot';
-        dot.setAttribute('aria-label', 'Go to gallery set ' + (i + 1));
-        dot.addEventListener('click', () => {
-          index = i;
-          updateGallery();
-        });
-        dotsWrap.appendChild(dot);
-      }
+  prevBtn.addEventListener('click', () => {
+    index = index <= 0 ? maxIndex : index - 1;
+    updateGallery();
+  });
+
+  window.addEventListener('resize', () => {
+    perView = window.innerWidth <= 900 ? 1 : 3;
+    maxIndex = Math.max(0, slides.length - perView);
+    buildDots();
+    updateGallery();
+  });
+
+  // Initialize
+  buildDots();
+  updateGallery();
+}
+
+  function updateGallery() {
+    const move = index * (100 / perView);
+    track.style.transform = `translateX(-${move}%)`;
+    
+    // Update dots
+    const dots = dotsWrap.querySelectorAll('.gallery-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  function buildDots() {
+    dotsWrap.innerHTML = '';
+    for (let i = 0; i <= maxIndex; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'gallery-dot';
+      dot.addEventListener('click', () => {
+        index = i;
+        updateGallery();
+      });
+      dotsWrap.appendChild(dot);
     }
+  }
 
     function updateGallery() {
       const slideWidth = slides[0].getBoundingClientRect().width;
