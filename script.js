@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- MOBILE MENU LOGIC ---
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
 
@@ -10,9 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- GALLERY LOGIC ---
     const gallery = document.querySelector('[data-gallery]');
-
     if (gallery) {
         const track = gallery.querySelector('.gallery-track');
         const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
@@ -25,14 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let maxIndex = Math.max(0, slides.length - perView);
 
         function updateGallery() {
+            if (!track) return;
             const move = index * (100 / perView);
             track.style.transform = `translateX(-${move}%)`;
-
-            // Update dots state
-            const dots = dotsWrap.querySelectorAll('.gallery-dot');
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
+            const dots = dotsWrap ? dotsWrap.querySelectorAll('.gallery-dot') : [];
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
         }
 
         function buildDots() {
@@ -42,43 +36,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dot = document.createElement('button');
                 dot.type = 'button';
                 dot.className = 'gallery-dot';
-                dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-                dot.addEventListener('click', () => {
-                    index = i;
-                    updateGallery();
-                });
+                dot.addEventListener('click', () => { index = i; updateGallery(); });
                 dotsWrap.appendChild(dot);
             }
         }
 
-        // Event Listeners - INSIDE the gallery check to prevent null errors
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                index = index >= maxIndex ? 0 : index + 1;
-                updateGallery();
-            });
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                index = index <= 0 ? maxIndex : index - 1;
-                updateGallery();
-            });
-        }
-
-        // Handle window resizing
-        window.addEventListener('resize', () => {
-            const newPerView = window.innerWidth <= 900 ? 1 : 3;
-            if (newPerView !== perView) {
-                perView = newPerView;
-                maxIndex = Math.max(0, slides.length - perView);
-                if (index > maxIndex) index = maxIndex;
-                buildDots();
-                updateGallery();
-            }
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            index = index >= maxIndex ? 0 : index + 1;
+            updateGallery();
         });
 
-        // Initialize gallery
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            index = index <= 0 ? maxIndex : index - 1;
+            updateGallery();
+        });
+
+        window.addEventListener('resize', () => {
+            perView = window.innerWidth <= 900 ? 1 : 3;
+            maxIndex = Math.max(0, slides.length - perView);
+            if (index > maxIndex) index = maxIndex;
+            buildDots();
+            updateGallery();
+        });
+
         buildDots();
         updateGallery();
     }
