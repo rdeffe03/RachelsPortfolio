@@ -1,19 +1,5 @@
-
-  const nav = document.getElementById('main-nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 40);
-  });
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
-
+// Wrap your existing gallery logic in a window load event
+window.addEventListener('load', () => {
   const gallery = document.querySelector('[data-gallery]');
   if (gallery) {
     const track = gallery.querySelector('.gallery-track');
@@ -21,6 +7,7 @@
     const prevBtn = gallery.querySelector('[data-gallery-prev]');
     const nextBtn = gallery.querySelector('[data-gallery-next]');
     const dotsWrap = gallery.querySelector('[data-gallery-dots]');
+    
     let index = 0;
     let perView = window.innerWidth <= 900 ? 1 : 3;
     let maxIndex = Math.max(0, slides.length - perView);
@@ -31,7 +18,6 @@
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.className = 'gallery-dot';
-        dot.setAttribute('aria-label', 'Go to gallery set ' + (i + 1));
         dot.addEventListener('click', () => {
           index = i;
           updateGallery();
@@ -41,14 +27,15 @@
     }
 
     function updateGallery() {
-      const slideWidth = slides[0].getBoundingClientRect().width;
-      track.style.transform = 'translateX(' + (slideWidth * index * -1) + 'px)';
+      // Now slideWidth will be accurately calculated
+      const slideWidth = slides[0].offsetWidth; 
+      track.style.transform = `translateX(${-index * slideWidth}px)`;
+      
       const dots = dotsWrap.querySelectorAll('.gallery-dot');
-      dots.forEach((dot, dotIndex) => {
-        dot.classList.toggle('active', dotIndex === index);
-      });
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+      
       prevBtn.disabled = index === 0;
-      nextBtn.disabled = index === maxIndex;
+      nextBtn.disabled = index >= maxIndex;
     }
 
     function syncGallery() {
@@ -72,14 +59,4 @@
     window.addEventListener('resize', syncGallery);
     syncGallery();
   }
-
-  function handleContact() {
-    const name = document.getElementById('cf-name').value.trim();
-    const email = document.getElementById('cf-email').value.trim();
-    const msg = document.getElementById('cf-msg').value.trim();
-    if (!name || !email || !msg) {
-      alert('Please fill in your name, email, and message.');
-      return;
-    }
-    alert('Thank you, ' + name + '! Your message has been received. Rachel will be in touch within two business days.');
-  }
+});
