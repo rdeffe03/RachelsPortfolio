@@ -103,16 +103,41 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- CONTACT FORM LOGIC ---
-function handleContact() {
-    // Placeholder for form submission logic
-    const name = document.getElementById('cf-name').value;
-    const email = document.getElementById('cf-email').value;
-    
-    if (!name || !email) {
-        alert("Please fill out your name and email.");
-        return;
+async function handleContact() {
+  const name = document.getElementById('cf-name').value;
+  const email = document.getElementById('cf-email').value;
+  const message = document.getElementById('cf-message').value; // Ensure you have this ID
+
+  if (!name || !email) {
+    alert("Please fill out your name and email.");
+    return;
+  }
+
+  // The Formspree endpoint you provided
+  const endpoint = "https://formspree.io/f/xjgljved";
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        message: message
+      })
+    });
+
+    if (response.ok) {
+      alert("Thank you! Rachel will respond within two business days.");
+      // Optional: Clear the form
+      document.getElementById('contact-form').reset();
+    } else {
+      alert("Oops! There was a problem submitting your form.");
     }
-    
-    console.log("Form submitted for:", name);
-    alert("Thank you, Rachel will respond within two business days.");
+  } catch (error) {
+    console.error("Submission error:", error);
+    alert("Check your internet connection and try again.");
+  }
 }
