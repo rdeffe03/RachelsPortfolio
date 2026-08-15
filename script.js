@@ -1,23 +1,27 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Smooth scroll offset adjustment for sticky navbar
-  const navbarHeight = document.querySelector(".navbar").offsetHeight;
+const menu = document.querySelector('.menu');
+const links = document.querySelector('.nav-links');
 
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      const targetId = this.getAttribute("href");
-      if (targetId === "#") return;
-
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        const elementPosition = targetElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth"
-        });
-      }
-    });
-  });
+menu?.addEventListener('click', () => {
+  const open = links.classList.toggle('open');
+  menu.setAttribute('aria-expanded', String(open));
 });
+
+links?.querySelectorAll('a').forEach(a =>
+  a.addEventListener('click', () => {
+    links.classList.remove('open');
+    menu?.setAttribute('aria-expanded', 'false');
+  })
+);
+
+const observer = new IntersectionObserver(
+  entries =>
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    }),
+  { threshold: 0.07 }
+);
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
