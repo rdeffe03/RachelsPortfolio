@@ -1,143 +1,27 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- MOBILE MENU LOGIC ---
-    // Note: Your HTML uses a standard <ul> for nav-links. 
-    // If you add a hamburger button later, this logic will be ready.
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
+const menu = document.querySelector('.menu');
+const links = document.querySelector('.nav-links');
 
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            hamburger.classList.toggle('toggle');
-        });
-    }
-
-    // --- GALLERY LOGIC ---
-    const gallery = document.querySelector('[data-gallery]');
-
-    if (gallery) {
-        const track = gallery.querySelector('.gallery-track');
-        const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
-        const prevBtn = document.querySelector('[data-gallery-prev]');
-        const nextBtn = document.querySelector('[data-gallery-next]');
-        const dotsWrap = document.querySelector('[data-gallery-dots]');
-
-        let index = 0;
-        // Adjust perView based on your CSS (3 for desktop, 1 for mobile)
-        let perView = window.innerWidth <= 900 ? 1 : 3;
-        let maxIndex = Math.max(0, slides.length - perView);
-
-        function updateGallery() {
-            if (!track) return;
-            
-            // Calculate movement based on percentage of the container
-            const move = index * (100 / perView);
-            track.style.transform = `translateX(-${move}%)`;
-
-            // Update dots active state
-            if (dotsWrap) {
-                const dots = dotsWrap.querySelectorAll('.gallery-dot');
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
-            }
-        }
-
-        function buildDots() {
-            if (!dotsWrap) return;
-            dotsWrap.innerHTML = '';
-            // We only need dots for the possible "start" positions
-            for (let i = 0; i <= maxIndex; i++) {
-                const dot = document.createElement('button');
-                dot.type = 'button';
-                dot.className = 'gallery-dot';
-                dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-                dot.addEventListener('click', () => {
-                    index = i;
-                    updateGallery();
-                });
-                dotsWrap.appendChild(dot);
-            }
-        }
-
-        // Event Listeners for Navigation Buttons
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                if (index >= maxIndex) {
-                    index = 0; // Loop back to start
-                } else {
-                    index++;
-                }
-                updateGallery();
-            });
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                if (index <= 0) {
-                    index = maxIndex; // Loop to end
-                } else {
-                    index--;
-                }
-                updateGallery();
-            });
-        }
-
-        // Handle window resizing to update items shown
-        window.addEventListener('resize', () => {
-            const newPerView = window.innerWidth <= 900 ? 1 : 3;
-            if (newPerView !== perView) {
-                perView = newPerView;
-                maxIndex = Math.max(0, slides.length - perView);
-                // Ensure index doesn't go out of bounds after resize
-                if (index > maxIndex) index = maxIndex;
-                buildDots();
-                updateGallery();
-            }
-        });
-
-        // Initialize
-        buildDots();
-        updateGallery();
-    }
+menu?.addEventListener('click', () => {
+  const open = links.classList.toggle('open');
+  menu.setAttribute('aria-expanded', String(open));
 });
 
-// --- CONTACT FORM LOGIC ---
-async function handleContact() {
-  const name = document.getElementById('cf-name').value;
-  const email = document.getElementById('cf-email').value;
-  const message = document.getElementById('cf-message').value; // Ensure you have this ID
+links?.querySelectorAll('a').forEach(a =>
+  a.addEventListener('click', () => {
+    links.classList.remove('open');
+    menu?.setAttribute('aria-expanded', 'false');
+  })
+);
 
-  if (!name || !email) {
-    alert("Please fill out your name and email.");
-    return;
-  }
+const observer = new IntersectionObserver(
+  entries =>
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    }),
+  { threshold: 0.07 }
+);
 
-  // The Formspree endpoint you provided
-  const endpoint = "https://formspree.io/f/xjgljved";
-
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: name,
-        email: email,
-        message: message
-      })
-    });
-
-    if (response.ok) {
-      alert("Thank you! Rachel will respond within two business days.");
-      // Optional: Clear the form
-      document.getElementById('contact-form').reset();
-    } else {
-      alert("Oops! There was a problem submitting your form.");
-    }
-  } catch (error) {
-    console.error("Submission error:", error);
-    alert("Check your internet connection and try again.");
-  }
-}
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
